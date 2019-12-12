@@ -28,7 +28,7 @@ class FgHero(FgRectangle):
 
     def move(self):
         keys = pg.key.get_pressed()
-        if len(keys) < 1:
+        if sum(keys) < 1:
             return
                 
         if keys == self.prevKey:
@@ -56,13 +56,11 @@ class FgHero(FgRectangle):
 class Snake(FgRectangle):
     def __init__(self, field, startX, startY, width, height):        
         super().__init__(field, startX, startY, width, height)        
-        self.length = 1
-        self.previousPositions = []
+        self.length = 3
+        self.body = []
 
     def move(self, hero):
-        self.previousPositions.insert(0, (self.x, self.y))
-        if len(self.previousPositions) > self.length:
-            self.previousPositions.pop()
+        self.body.insert(0, (self.x, self.y))
         if abs(self.x - hero.x) > 5:
             if self.x < hero.x:
                 self.x += 5
@@ -72,9 +70,18 @@ class Snake(FgRectangle):
             if self.y < hero.y:
                 self.y += 5            
             if self.y > hero.y:
-                self.y -= 5            
+                self.y -= 5           
+        self.body.insert(0, (self.x, self.y)) 
+        while len(self.body) >= self.length:
+            self.body.pop()
+
     def grow():
-        self.length += 1
+        self.length += 3
+
+    def draw(self, colour):
+        for p in reversed(self.body):
+            self.x, self.y = p
+            super().draw(colour)
 
 class FgField():
     BLACK = (0,0,0)
@@ -90,13 +97,19 @@ class FgField():
         pg.draw.rect(self.screen, colour, (character.x, character.y, character.width, character.height ))
 
     def clearCharacters(self, hero, villain):
-        self.drawCharacter(villain, self.BLACK)
-        self.drawCharacter(hero, self.BLACK)
+        hero.draw(self.BLACK)
+        villain.draw(self.BLACK)
+        # self.drawCharacter(villain, self.BLACK)
+        # self.drawCharacter(hero, self.BLACK)
 
     def redrawCharacters(self, hero, villain):
+        hero.draw(self.GREEN)
+        villain.draw(self.RED)
+
         # self.screen.fill((0,0,0))
-        self.drawCharacter(hero, self.GREEN)
-        self.drawCharacter(villain, self.RED)
+        # self.drawCharacter(hero, self.GREEN)
+        # self.drawCharacter(villain, self.RED)
+
 
 class FirstGame():
     def __init__(self):
@@ -112,16 +125,48 @@ class FirstGame():
         self.villain.move(self.hero)
         self.field.redrawCharacters(self.hero, self.villain)
 
-def main():
-    fg = FirstGame()
-    play = True
-    while play:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                play = False                        
-        fg.moveCharacters()        
-        fg.clock.tick(10)
+    def noCollision(self):
+        noCol = True
+        for p in self.villain.body:
+            sx, sy = p
+            if self.hero.x > sx and self.hero.x < (sx + self.villain.width)\
+                and self.hero.y > sy and self.hero.y < (sy + self.villain.height):                
+                noCol = False
+                break
+        return noCol
+
+    def playAgain(self):        
+        font = pg.font.SysFont("arial", 20, True)
+        text = font.render("Game over! Play again (y/n)?", True, (0,0,255))
+        self.field.screen.blit(text, (100,10))
         pg.display.update()
+        keys = []
+        validResponse = False
+        while not(validResponse):
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pygame.quit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_n:
+                        return False
+                    else:
+                        return True
+
+def main():
+    playMore = True
+    while playMore:
+        fg = FirstGame()
+        gameOn = True
+        while gameOn:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    gameOn = False
+                    playMore = False                        
+            fg.moveCharacters()
+            gameOn = fg.noCollision()
+            fg.clock.tick(10)
+            pg.display.update()
+        playMore = fg.playAgain()    
     pg.quit()
 
 
