@@ -1,5 +1,6 @@
 import unittest
 import firstgame as fg
+from unittest.mock import Mock
 
 class MockFgField():
     BLACK = (0,0,0)
@@ -51,9 +52,20 @@ class TestCollisionDetection(unittest.TestCase):
         self.rect2.y = 96
         self.assertTrue(self.rect2.overLapWithRectangle(self.rect1))
 
-    def rectangle_inside_rectangle(self):
-        # We need not test this. In this game, the rectangles will overlap partly 
-        # before they overlap completely
-        pass 
+    def test_rectangle_inside_rectangle(self):
+        self.rect2.x = 102
+        self.rect2.y = 102
+        self.assertTrue(self.rect1.overLapWithRectangle(self.rect2))
+
+class TestScreenDisplays(unittest.TestCase):
+    def setUp(self):
+        self.game = Mock()
+        self.game.field
+        self.game.field.screen = Mock(spec=fg.pg.Surface)     
+                   
+    def test_playagain(self):
+        self.game.updateScore()
+        self.game.field.screen.blit.assert_called()
+
 if __name__ == "__main__":
     unittest.main()
