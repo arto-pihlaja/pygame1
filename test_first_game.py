@@ -31,12 +31,12 @@ class TestCollisionDetection(unittest.TestCase):
         self.assertEqual(self.rect2.getBottomRight(), (5,5))
 
     def test_topleft_inside(self):        
-        self.assertTrue(self.rect1.pointIsInside((105, 105)))
+        self.assertTrue(self.rect1.pointIsInside((105, 105)), "Didn't identify point inside rectangle")
 
     def test_topleft_overlaps(self):
         self.rect2.x = 109
         self.rect2.y = 109
-        self.assertTrue(self.rect2.overLapWithRectangle(self.rect1))
+        self.assertTrue(self.rect2.overLapWithRectangle(self.rect1), "Didn't notice top left overlap")
 
     def test_topright_overlaps(self):
         self.rect2.x = 96
@@ -69,18 +69,19 @@ class TestGameDriver(unittest.TestCase):
 
     @mock.patch.object(fg.FgHero, "move")
     def test_movecharacters(self, mock_move):
-        mock_move.return_value = None
         for i in range(0,40):
             self.gd.moveCharacters()
-        self.assertEqual(self.gd.score,40,"Counting score")
-        self.assertEqual(self.gd.villain.speed, 4, "Speeding up snake")
-        self.assertEqual(self.gd.villain.length,7, "Growing snake")
+        self.assertEqual(self.gd.score,40,"Failed to count score")
+        self.assertEqual(self.gd.villain.speed, 4, "Failed speeding up snake")
+        self.assertEqual(self.gd.villain.length,7, "Failed growing snake")
 
     @mock.patch.object(pg.event, "get")
     def test_playAgain(self, mock_get):
         mock_get.return_value = [MockEvent(pg.KEYDOWN, pg.K_n)]
-        self.gd.field.showGameOver.return_value = None        
-        self.assertEqual(self.gd.playAgain(), False)
+        self.assertEqual(self.gd.playAgain(), False, "User wants to end game")
+
+        mock_get.return_value = [MockEvent(pg.KEYDOWN, pg.K_y)]
+        self.assertEqual(self.gd.playAgain(), True, "User wants to continue game")
 
 if __name__ == "__main__":
     unittest.main()
