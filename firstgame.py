@@ -159,11 +159,8 @@ class ScreenProcessor():
         pg.display.update()
 
 class GameDriver():
-    def __init__(self, controls):       
-        self.controls = controls 
-        self.field = controls.screenprocessor
-        self.clock = controls.clock
-        self.keyreader = controls.keyreader
+    def __init__(self, sp):
+        self.field = sp       
         self.hero = FgHero(self.field, 50, 50, 6, 8)
         self.villain = Snake(self.field, 0, 50, 10, 10)
         self.frame = 0
@@ -203,7 +200,7 @@ class GameDriver():
         keys = []
         validResponse = False
         while not(validResponse):
-            for event in self.controls.eventlistener.getEvents():
+            for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
                 if event.type == pg.KEYDOWN:
@@ -214,40 +211,22 @@ class GameDriver():
                     else:
                         continue
 
-class Controls():
-    def __init__(self):
-        self.screenprocessor = ScreenProcessor()
-        self.keyreader = KeyReader()
-        self.eventlistener = EventListener()
-        self.clock = pg.time.Clock()
-
-class KeyReader():
-    def getKeys(self):
-        keys = pg.key.get_pressed()
-        if sum(keys) < 1:
-            return None
-        else:
-            return keys
-
-class EventListener():
-    def getEvents(self):
-        return pg.event.get()
-
 def main():
     playMore = True
-    controls = Controls()    
+    sp = ScreenProcessor()
+    clock = pg.time.Clock()
     while playMore:
-        gd = GameDriver(controls)
+        gd = GameDriver(sp)
         gameOn = True
         while gameOn:
-            for event in controls.eventlistener.getEvents():
+            for event in pg.event.get():
                 if event.type == pg.QUIT:
                     gameOn = False
                     playMore = False                        
             gd.moveCharacters()
             gameOn = gd.noCollision()
             gd.updateScore()
-            controls.clock.tick(10)
+            clock.tick(10)
             pg.display.update()
         playMore = gd.playAgain()    
     pg.quit()

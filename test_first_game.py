@@ -1,6 +1,7 @@
 import unittest
 import unittest.mock as mock
 import firstgame as fg
+import pygame as pg
 
 class MockFgField():
     BLACK = (0,0,0)
@@ -57,6 +58,11 @@ class TestCollisionDetection(unittest.TestCase):
         self.rect2.y = 102
         self.assertTrue(self.rect1.overLapWithRectangle(self.rect2))
 
+class MockEvent():
+    def __init__(self, event_type, key):
+        self.type = event_type
+        self.key = key
+
 class TestGameDriver(unittest.TestCase):
     def setUp(self):
         self.gd = fg.GameDriver(mock.Mock())
@@ -70,6 +76,11 @@ class TestGameDriver(unittest.TestCase):
         self.assertEqual(self.gd.villain.speed, 4, "Speeding up snake")
         self.assertEqual(self.gd.villain.length,7, "Growing snake")
 
+    @mock.patch.object(pg.event, "get")
+    def test_playAgain(self, mock_get):
+        mock_get.return_value = [MockEvent(pg.KEYDOWN, pg.K_n)]
+        self.gd.field.showGameOver.return_value = None        
+        self.assertEqual(self.gd.playAgain(), False)
 
 if __name__ == "__main__":
     unittest.main()
