@@ -1,6 +1,6 @@
 import unittest
+import unittest.mock as mock
 import firstgame as fg
-from unittest.mock import Mock
 
 class MockFgField():
     BLACK = (0,0,0)
@@ -57,15 +57,19 @@ class TestCollisionDetection(unittest.TestCase):
         self.rect2.y = 102
         self.assertTrue(self.rect1.overLapWithRectangle(self.rect2))
 
-class TestScreenDisplays(unittest.TestCase):
+class TestGameDriver(unittest.TestCase):
     def setUp(self):
-        self.game = Mock()
-        self.game.field
-        self.game.field.screen = Mock(spec=fg.pg.Surface)     
-                   
-    def test_playagain(self):
-        self.game.updateScore()
-        self.game.field.screen.blit.assert_called()
+        self.gd = fg.GameDriver(mock.Mock())
+
+    @mock.patch.object(fg.FgHero, "move")
+    def test_movecharacters(self, mock_move):
+        mock_move.return_value = None
+        for i in range(0,40):
+            self.gd.moveCharacters()
+        self.assertEqual(self.gd.score,40,"Counting score")
+        self.assertEqual(self.gd.villain.speed, 4, "Speeding up snake")
+        self.assertEqual(self.gd.villain.length,7, "Growing snake")
+
 
 if __name__ == "__main__":
     unittest.main()
