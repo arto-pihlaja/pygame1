@@ -262,10 +262,10 @@ class Obstacle(GameCharacter):
 
     def move(self, characters):
         r = randint(0, 2)
-        # if r <1: #swap orientation
-        #     tmpWidth = self.width
-        #     self.width = self.height        
-        #     self.height = tmpWidth        
+        if r <1: #swap orientation
+            tmpWidth = self.width
+            self.width = self.height        
+            self.height = tmpWidth        
         self.x = randint(0, (self.field.width - self.width))
         self.y = randint(40, (self.field.height - self.height))        
 
@@ -358,23 +358,6 @@ class GameDriver():
             self.score += 10
         self.field.showScore(self.score)
 
-    def noCollision(self):
-        noCol = True
-        hero = self.characters["hero"]
-        for s in self.characters["snakes"]:
-            for p in s.body:
-                sx, sy = p
-                rectSnake = FgRectangle(sx, sy, s.width, s.height)
-                rectHero = FgRectangle(hero.x, hero.y, hero.width, hero.height)
-                if rectSnake.overLapWithRectangle(rectHero):
-                    noCol = False
-                    break
-                del rectHero
-                del rectSnake
-            if noCol == False:
-                break
-        return noCol
-
     def playAgain(self):        
         self.field.showGameOver()
         validResponse = False
@@ -400,7 +383,6 @@ def main():
         heroCaught = False
         while gameOn:
             heroCaught = gd.updateGame()
-            # gameOn = gd.noCollision()
             clock.tick(10)
             pg.display.update()
             if heroCaught:
