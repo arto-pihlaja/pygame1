@@ -97,12 +97,14 @@ class TestGameDriver(unittest.TestCase):
 
     @mock.patch.object(fg.FgHero, "move")
     @mock.patch.object(fg.GameCharacter, "draw")
-    def test_movecharacters(self, mock_move, mock_draw):
-        for i in range(0,40):
-            self.gd.moveCharacters()
-        self.assertEqual(self.gd.score,40,"Failed to count score")
+    def test_updateGame(self, mock_move, mock_draw):
+        times = 2*self.gd.FREQ_SNAKE_GROW
+        for i in range(0,2*self.gd.FREQ_SNAKE_GROW):
+            self.gd.updateGame()
+
+        self.assertEqual(self.gd.score,100,"Failed to count score")
         for s in self.gd.characters["snakes"]:
-            self.assertEqual(s.speed, 4, "Failed speeding up snake")
+            self.assertEqual(s.speed, 5, "Failed speeding up snake")
             self.assertEqual(s.length,5, "Failed growing snake")
 
     @mock.patch.object(pg.event, "get")

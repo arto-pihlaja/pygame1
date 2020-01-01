@@ -304,6 +304,11 @@ class ScreenProcessor():
         pg.display.update()
 
 class GameDriver():
+    FREQ_SNAKE_SPAWN = 300
+    FREQ_OBSTACLE_ADD = 200
+    FREQ_OBSTACLE_MOVE = 40
+    FREQ_SNAKE_GROW = 50
+    FREQ_SCORE_ADD = 10
     def __init__(self, sp):
         self.field = sp       
         self.hero = FgHero(self.field, 10, 50, 6, 8)
@@ -316,19 +321,19 @@ class GameDriver():
     def updateGame(self):   
         heroCaught = self.moveCharacters()     
         self.frame +=1
-        if self.frame % 50 == 0:    
+        if self.frame % self.FREQ_SNAKE_GROW == 0:    
             for s in self.characters["snakes"]:  
                 s.grow()
                 s.speedUp()        
 
-        if self.frame % 200 == 0:
+        if self.frame % self.FREQ_SNAKE_SPAWN == 0:
             self.characters["snakes"].append(Snake(self.field, 0, 0, 10, 10))
     
-        if self.frame % 50 == 0:
+        if self.frame % self.FREQ_OBSTACLE_MOVE == 0:
             for o in self.characters["obstacles"]:
                 o.move(self.characters)        
 
-        if self.frame % 200 == 0:
+        if self.frame % 200 == self.FREQ_OBSTACLE_ADD:
             self.characters["obstacles"].append(Obstacle(self.field, 0, 30, 80,10))        
             
         self.updateScore()
@@ -337,7 +342,6 @@ class GameDriver():
 
     def moveCharacters(self):
         self.field.clearCharacters()
-        self.frame +=1
 
         self.characters["hero"].move()
         self.characters["hero"].draw()
@@ -354,7 +358,7 @@ class GameDriver():
         return heroCaught
 
     def updateScore(self):
-        if self.frame % 10 == 0:
+        if self.frame % self.FREQ_SCORE_ADD == 0:
             self.score += 10
         self.field.showScore(self.score)
 
